@@ -51,6 +51,21 @@ const MERGE_HTML = `
 </html>
 `
 
+const SEP_HTML = `
+<html>
+<head>
+	<title>개지린다 진짜 ㅋㅋㅋ</title>
+</head>
+<body>
+<form enctype="multipart/form-data" action="/sep-post" method="post">
+	이미지 업로드:
+	<input type="file" name="img" />
+	<input type="submit" value="분해하기" />
+</form>
+</body>
+</html>
+`
+
 func min(a, b int) int {
 	if a > b {
 		return b
@@ -66,6 +81,10 @@ func main() {
 
 	http.HandleFunc("/merge", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(MERGE_HTML))
+	})
+
+	http.HandleFunc("/sep", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(SEP_HTML))
 	})
 
 	http.HandleFunc("/merge-post", func(w http.ResponseWriter, r *http.Request) {
@@ -145,6 +164,77 @@ func main() {
 			}
 		}
 		// w.Header().Set("Content-Disposition", "attachment; filename=composite.png")
+		w.Header().Set("Content-Type", "image/png")
+
+		if err := png.Encode(w, out); err != nil {
+			log.Print("out image encode/send error:", err)
+		}
+
+	})
+
+	http.HandleFunc("/sep-post", func(w http.ResponseWriter, r *http.Request) {
+		f, _, err := r.FormFile("img")
+		if err != nil {
+			if err.Error() == http.ErrMissingFile.Error() {
+				w.Write([]byte("이미지를 지정하지 않았습니다. 다시 시도해주세요."))
+				return
+			}
+			log.Print("img_white FormFile errror:", err)
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		defer f.Close()
+		var bb bytes.Buffer
+		io.Copy(&bb, f)
+		img, _, err := image.Decode(&bb)
+		if err != nil {
+			log.Print("img parse error:", err)
+			w.Write([]byte("이미지 처리 중 오류가 발생했습니다. 올바른 이미지 파일이 맞나요?"))
+			return
+		}
+
+		bounds := img.Bounds()
+		max_x := bounds.Dx()
+		max_y := bounds.Dy()
+
+		// out_w := image.NewRGBA(bounds)
+		//out_b := image.NewGray16(bounds)
+		//draw.DrawMask(out_b, bounds, img, image.ZP, img, image.ZP, draw.Over)
+		out := image.NewGray16(image.Rectangle{image.Point{0, 0}, image.Point{2 * max_x, max_y}})
+
+		for y := 0; y < max_y; y++ {
+			for x := 0; x < max_x; x++ {
+				c := img.At(bounds.Min.X+x, bounds.Min.Y+y)
+
+				nc := color.NRGBA64Model.Convert(c).(color.NRGBA64)
+				// nc := color.NRGBA64{c.R, c.G, c.B, c.A}
+				a := float64(nc.A)
+				nc.A = 0xffff
+				gc := float64(color.Gray16Model.Convert(nc).(color.Gray16).Y)
+
+				wf := (a*gc/0xffff+0xffff-a)*2 - 0xffff
+				w := uint16(wf)
+				if wf > 0xffff {
+					w = 0xffff
+				}
+				if wf < 0 {
+					w = 0
+				}
+
+				bf := 2 * a * gc / 0xffff
+				b_ := uint16(bf)
+				if bf > 0xffff {
+					b_ = 0xffff
+				}
+				if bf < 0 {
+					b_ = 0
+				}
+
+				out.Set(x, y, color.Gray16{w})
+				out.Set(x+max_x, y, color.Gray16{b_})
+			}
+		}
+
 		w.Header().Set("Content-Type", "image/png")
 
 		if err := png.Encode(w, out); err != nil {
