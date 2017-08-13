@@ -58,6 +58,10 @@ func main() {
 
 		fw, _, err := r.FormFile("img_white")
 		if err != nil {
+			if err.Error() == http.ErrMissingFile.Error() {
+				w.Write([]byte("흰 색일 때 이미지를 지정하지 않았습니다. 다시 시도해주세요."))
+				return
+			}
 			log.Print("img_white FormFile errror:", err)
 			w.WriteHeader(http.StatusForbidden)
 			return
@@ -67,6 +71,10 @@ func main() {
 
 		fb, _, err := r.FormFile("img_black")
 		if err != nil {
+			if err.Error() == http.ErrMissingFile.Error() {
+				w.Write([]byte("검은 색일 때 이미지를 지정하지 않았습니다. 다시 시도해주세요."))
+				return
+			}
 			log.Print("img_black FormFile errror:", err)
 			w.WriteHeader(http.StatusForbidden)
 			return
