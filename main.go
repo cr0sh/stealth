@@ -100,10 +100,14 @@ func main() {
 		img_w, _, err := image.Decode(&bw)
 		if err != nil {
 			log.Print("img_w parse error:", err)
+			w.Write([]byte("이미지 처리 중 오류가 발생했습니다. 다시 시도해 보세요."))
+			return
 		}
 		img_b, _, err := image.Decode(&bb)
 		if err != nil {
 			log.Print("img_b parse error:", err)
+			w.Write([]byte("이미지 처리 중 오류가 발생했습니다. 다시 시도해 보세요."))
+			return
 		}
 
 		wBounds := img_w.Bounds()
