@@ -15,13 +15,24 @@ import (
 )
 
 const MAX_PARSE_MEM int64 = 4 << 20 // 4MB
-const HTML = `
+const INDEX_HTML = `
 <html>
 <head>
-       <title>개지린다 진짜 ㅋㅋㅋㅋㅋㅋㅋㅋ</title>
+	<title>개지린다 진짜 ㅋㅋㅋ</title>
 </head>
 <body>
-<form enctype="multipart/form-data" action="/merge" method="post">
+<a href="/merge">이미지 합치기</a>
+<a href="/sep">이미지 분해하기</a>
+</body>
+
+`
+const MERGE_HTML = `
+<html>
+<head>
+	<title>개지린다 진짜 ㅋㅋㅋ</title>
+</head>
+<body>
+<form enctype="multipart/form-data" action="/merge-post" method="post">
 	<table>
 		<tr>
 			<td>흰 색 배경일 때 이미지:  </td>
@@ -50,10 +61,14 @@ func min(a, b int) int {
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(HTML))
+		w.Write([]byte(INDEX_HTML))
 	})
 
 	http.HandleFunc("/merge", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(MERGE_HTML))
+	})
+
+	http.HandleFunc("/merge-post", func(w http.ResponseWriter, r *http.Request) {
 		var bw, bb bytes.Buffer
 
 		fw, _, err := r.FormFile("img_white")
