@@ -21,7 +21,7 @@ const HTML = `
        <title>개지린다 진짜 ㅋㅋㅋㅋㅋㅋㅋㅋ</title>
 </head>
 <body>
-<form enctype="multipart/form-data" action="/upload" method="post">
+<form enctype="multipart/form-data" action="/merge" method="post">
 	<table>
 		<tr>
 			<td>흰 색 배경일 때 이미지:  </td>
@@ -53,7 +53,7 @@ func main() {
 		w.Write([]byte(HTML))
 	})
 
-	http.HandleFunc("/upload", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/merge", func(w http.ResponseWriter, r *http.Request) {
 		var bw, bb bytes.Buffer
 
 		fw, _, err := r.FormFile("img_white")
