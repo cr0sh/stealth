@@ -18,7 +18,7 @@ const MAX_PARSE_MEM int64 = 4 << 20 // 4MB
 const INDEX_HTML = `
 <html>
 <head>
-	<title>개지린다 진짜 ㅋㅋㅋ</title>
+	<title>이미지 합치기/분해하기</title>
 </head>
 <body>
 <a href="/merge">이미지 합치기</a>
@@ -29,7 +29,7 @@ const INDEX_HTML = `
 const MERGE_HTML = `
 <html>
 <head>
-	<title>개지린다 진짜 ㅋㅋㅋ</title>
+	<title>이미지 합치기</title>
 </head>
 <body>
 <form enctype="multipart/form-data" action="/merge-post" method="post">
@@ -54,7 +54,7 @@ const MERGE_HTML = `
 const SEP_HTML = `
 <html>
 <head>
-	<title>개지린다 진짜 ㅋㅋㅋ</title>
+	<title>이미지 분해하기</title>
 </head>
 <body>
 <form enctype="multipart/form-data" action="/sep-post" method="post">
